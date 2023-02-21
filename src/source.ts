@@ -28,6 +28,12 @@ export class Source<State extends PartitionState> {
 
     public apply(event: Event) {
 
+        const sortingKey = BigInt(event.sortingKey)
+
+        if (this.state.sortingKey > sortingKey) {
+            return
+        }
+
         const { typeUrl, value } = event.eventPayload!
 
         const handler = this.handlers.get(typeUrl)
@@ -36,7 +42,7 @@ export class Source<State extends PartitionState> {
 
             handler(this.state, value)
 
-            this.state.sortingKey = BigInt(event.sortingKey)
+            this.state.sortingKey = sortingKey
 
             return
 

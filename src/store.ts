@@ -86,7 +86,7 @@ export class Store {
 
             agg.apply(ev)
 
-            query.startSortingKey = (agg.sortingKey+1n).toString()
+            req.query!.startSortingKey = (agg.sortingKey+1n).toString()
 
         })
 
