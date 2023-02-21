@@ -43,7 +43,7 @@ export class Store {
     public async restore(agg: Aggregator, to?: bigint, batchSize?: bigint) {
 
         const query = Query.create({
-            startSortingKey: agg.sortingKey.toString(),
+            startSortingKey: (agg.sortingKey + 1n).toString(),
             stopSortingKey: "0",
             stop: QueryStop.QUERY_STOP_LATEST
         })
