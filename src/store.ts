@@ -72,8 +72,6 @@ export class Store {
 
                     eventCount = 0
 
-                    query.startSortingKey = (agg.sortingKey+1n).toString()
-
                     call.write(req)
                     return
 
@@ -87,6 +85,8 @@ export class Store {
             eventCount++
 
             agg.apply(ev)
+
+            query.startSortingKey = (agg.sortingKey+1n).toString()
 
         })
 
