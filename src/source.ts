@@ -64,9 +64,7 @@ export class Source<State extends PartitionState> {
 
         for (const event of events) {
 
-            event.partitionKey = this.partitionKey
-
-            if (this.sortingKeyType)
+            if (this.sortingKeyType !== undefined)
                 event.sortingKeyType = this.sortingKeyType
 
             this.apply(event)
