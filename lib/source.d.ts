@@ -7,6 +7,7 @@ export interface PartitionState {
     sortingKey: bigint;
 }
 export type EventHandlers<State extends PartitionState> = Map<string, (state: State, buffer: Buffer) => void>;
+export type Cache<State extends PartitionState> = LRUCache<string, State, unknown>;
 export declare class Source<State extends PartitionState> {
     state: State;
     private handlers;
@@ -25,6 +26,12 @@ export declare class Source<State extends PartitionState> {
         encode(evt: EventType, w?: protobuf.Writer): protobuf.Writer;
     }, sortingKeyType?: SortingKeyType): Event;
 }
-export declare const MakeSourceFactory: <State extends PartitionState>(store: Store, handlers: EventHandlers<State>, sortingKeyType?: SortingKeyType) => (state: State) => Source<State>;
+export interface SourceFactoryOptions<State extends PartitionState> {
+    store: Store;
+    handlers: EventHandlers<State>;
+    sortingKeyType?: SortingKeyType;
+    cache?: Cache<State>;
+}
+export declare const MakeSourceFactory: <State extends PartitionState>({ store, handlers, sortingKeyType, cache }: SourceFactoryOptions<State>) => (state: State) => Source<State>;
 export type SourceFactory<State extends PartitionState> = ReturnType<typeof MakeSourceFactory<State>>;
 //# sourceMappingURL=source.d.ts.map

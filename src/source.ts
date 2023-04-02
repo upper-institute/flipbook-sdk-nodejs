@@ -11,6 +11,8 @@ export interface PartitionState {
 
 export type EventHandlers<State extends PartitionState> = Map<string, (state: State, buffer: Buffer) => void>
 
+export type Cache<State extends PartitionState> = LRUCache<string, State, unknown>
+
 export class Source<State extends PartitionState> {
 
     constructor(
@@ -110,8 +112,20 @@ export class Source<State extends PartitionState> {
 
 }
 
-export const MakeSourceFactory = <State extends PartitionState>(store: Store, handlers: EventHandlers<State>, sortingKeyType?: SortingKeyType) => (state: State): Source<State> => {
-    return new Source(state, handlers, store, sortingKeyType)
+export interface SourceFactoryOptions<State extends PartitionState> {
+    store: Store
+    handlers: EventHandlers<State>
+    sortingKeyType?: SortingKeyType
+    cache?: Cache<State>
+}
+
+export const MakeSourceFactory = <State extends PartitionState>({
+        store,
+        handlers,
+        sortingKeyType,
+        cache
+}: SourceFactoryOptions<State>) => (state: State): Source<State> => {
+    return new Source(state, handlers, store, sortingKeyType, cache)
 }
 
 export type SourceFactory<State extends PartitionState> = ReturnType<typeof MakeSourceFactory<State>>
