@@ -4,6 +4,7 @@ import { Event, Event_AppendRequest, Event_IterateRequest } from "./proto/api/v1
 import { EventStoreClient } from "./proto/api/v1/eventstore"
 import { Empty } from "./proto/google/protobuf/empty"
 import { QueryStop, Query } from "./proto/api/v1/query"
+import LRUCache from "lru-cache"
 
 const endIterationSortingKey = "-1"
 
@@ -17,7 +18,10 @@ export class Store {
 
     private readonly client: EventStoreClient
 
-    constructor(private config: Configuration) {
+    constructor(
+        private config: Configuration,
+        
+    ) {
         this.client = new EventStoreClient(config.flipbookServerAddress, credentials.createInsecure())
     }
 

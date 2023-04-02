@@ -1,6 +1,8 @@
 import { Event, SortingKeyType } from "./proto/api/v1/event"
 import { Store } from "./store"
 import { UnhandledEventError } from "./errors"
+import LRUCache from "lru-cache"
+import deepcopy from "deepcopy"
 
 export interface PartitionState {
     partitionKey: string
@@ -15,7 +17,8 @@ export class Source<State extends PartitionState> {
         public state: State,
         private handlers: EventHandlers<State>,
         private store: Store,
-        private sortingKeyType?: SortingKeyType
+        private sortingKeyType?: SortingKeyType,
+        private cache?: LRUCache<string, State, unknown>
     ) { }
 
     public get partitionKey(): string {
@@ -57,7 +60,28 @@ export class Source<State extends PartitionState> {
     }
 
     public async restore(to?: bigint, batchSize?: bigint) {
+
+        let startSortingKey = this.sortingKey
+
+        if (this.cache) {
+
+            const state = this.cache.get(this.partitionKey)
+            
+            if (state) {
+                
+                this.state = deepcopy(state)
+
+                startSortingKey = this.sortingKey
+
+            }
+
+        }
+
         await this.store.restore(this, to, batchSize)
+
+        if (this.cache && this.sortingKey > startSortingKey)
+            this.cache.set(this.partitionKey, deepcopy(this.state))
+
     }
 
     public async append(...events: Event[]) {

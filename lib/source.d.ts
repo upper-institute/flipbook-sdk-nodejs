@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { Event, SortingKeyType } from "./proto/api/v1/event";
 import { Store } from "./store";
+import LRUCache from "lru-cache";
 export interface PartitionState {
     partitionKey: string;
     sortingKey: bigint;
@@ -11,7 +12,8 @@ export declare class Source<State extends PartitionState> {
     private handlers;
     private store;
     private sortingKeyType?;
-    constructor(state: State, handlers: EventHandlers<State>, store: Store, sortingKeyType?: SortingKeyType | undefined);
+    private cache?;
+    constructor(state: State, handlers: EventHandlers<State>, store: Store, sortingKeyType?: SortingKeyType | undefined, cache?: LRUCache<string, State, unknown> | undefined);
     get partitionKey(): string;
     get sortingKey(): bigint;
     apply(event: Event): void;
